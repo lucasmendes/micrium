@@ -1,0 +1,25 @@
+;	Copyright(C) 2008(2009) Renesas Technology Corp. and Renesas Solutions Corp., All rights reserved.
+;
+;	$Id: //depot/S2/Source/RX/adpcm_table.mar#2 $
+;	$Date: 2009/12/06 $
+
+		.section .rodata
+		
+		.global    _adpcm_stepsizeTable
+_adpcm_stepsizeTable:
+		.short	5,    6,    7,    8,    9,   10,   11,   12,   14,   15
+		.short	17,   18,   20,   22,   25,   27,   30,   33,   37,   40
+		.short	44,   49,   54,   59,   65,   72,   79,   87,   95,  105
+		.short	116,  127,  140,  154,  170,  187,  205,  226,  248,  273
+		.short	301,  331,  364,  400,  440,  485,  533,  586,  645,  710
+		.short	781,  859,  945, 1039, 1143, 1258, 1384, 1522, 1674, 1842
+		.short	2026, 2228, 2451, 2697, 2966, 3263, 3589, 3948, 4343, 4777
+		.short	5255, 5781, 6359, 6995, 7694, 8464, 9310,10242,11266,12392
+		.short	13632,14995,16494,18144,19958,21954,24150,26565
+			
+		.global    _adpcm_idxT4
+_adpcm_idxT4:
+		.byte	-1, -1, -1, -1, 2, 4, 6, 8
+		.byte	-1, -1, -1, -1, 2, 4, 6, 8
+			
+		.end

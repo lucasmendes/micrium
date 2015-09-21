@@ -1,0 +1,181 @@
+;	Copyright(C) 2008(2009) Renesas Technology Corp. and Renesas Solutions Corp., All rights reserved.
+;
+;	$Id: //depot/S2/Source/RX/adpcm_decoder.mar#1 $
+;	$Date: 2009/12/06 $
+
+
+		.section  .text
+			
+		.global    _adpcm_stepsizeTable
+		.global    _adpcm_idxT4
+
+;	typedef struct {
+;		uint8_t const *input;	// top address of ADPCM (input)
+;		int16_t *output;		// top address of PCM (output)
+;		uint32_t size;			// number to decode; don't use now
+;		int8_t id;				// index
+;		int16_t vp;				// predicted value
+;	} adpcm_env;
+
+
+; Synopsis
+;		#include "r_adpcm.h"
+;		void
+;		R_adpcm_initDec(adpcm_env *wenv);
+; Description:
+;		The R_adpcm_initDec() initializes ADPCM decoder.
+;		The function initializes a working area specified by wenv.
+;		The structure's members, input and output shall be 
+;		initialized by the user.
+; Return Value
+;		None
+
+		.global    _R_adpcm_initDec
+_R_adpcm_initDec:
+		mov.w	#0, 14[r1]
+		mov.b	#2, 12[r1]
+		rts
+
+
+
+; Synopsis
+;		#include "r_adpcm.h"
+;		int16_t
+;		R_adpcm_decode(uint16_t smpln, adpcm_env *wenv);
+; Description:
+;		The R_adpcm_decode() decodes smpln (No. of samples) ADPCM data 
+;		specified by wenv.
+;		Input data, encoded ADPCM data are read from and 
+;		the decoded data are stored to the memory area 
+;		specified by the function R_adpcm_initDec
+; Return Value
+;		The R_adpcm_decode() returns 0 when normally exit.
+;		The R_adpcm_decode() returns -1 when some errors occur.
+
+		.global    _R_adpcm_decode
+_R_adpcm_decode:
+		pushm	r6-r10
+
+;		mov.l	8[r2], r1
+		mov.l	[r2], r8
+		mov.l	4[r2], r7
+		btst	#0, r1
+		bne		ERROR_EXIT
+
+		cmp		#0, r1
+		ble		LOOP_EXIT
+
+		mov.l	#_adpcm_stepsizeTable, r10
+		mov.l	#_adpcm_idxT4, r9
+; r3-r6: free registers
+
+MAIN_LOOP:
+; read step size
+		mov.b	12[r2], r5
+		movu.w	[r5,r10], r3
+		btst	#0, r1
+		beq		?+
+
+; read compressed data (4 bits)
+;	odd case
+		movu.b	[r8+], r6
+		and		#0fh, r6
+		bra		DO_DECODE
+	
+?:
+;	even case
+		movu.b	[r8], r6		; don't increment input pointer
+		shar	#4, r6
+		and		#0fh, r6
+	
+DO_DECODE:
+		movu.b	r6,r6
+		shar	#3, r3, r4
+	
+		btst	#2, r6
+		beq		?+
+; += step
+		add		r3, r4
+	
+?:
+		btst	#1, r6
+		beq		?+
+; += step >> 1
+		shar	#1, r3, r5
+		mov.w	r4, r4
+		add		r5, r4
+	
+?:
+		btst	#0, r6
+		beq		?+
+; += step >> 2
+		shar	#2, r3
+		mov.w	r4, r4
+		add		r3, r4
+	
+?:
+		btst	#3, r6
+		beq		?+
+; negation
+		mov.w	r4, r4
+		neg		r4
+
+?:	
+; update 'vp' member
+		mov.w	14[r2], r5
+		add		r4, r5
+		mov.w	r5, 14[r2]
+
+; r4: free
+
+;		mov.w	r5, r5
+		max		#-29491, r5
+		min		#29490, r5
+		mov.w	r5, 14[r2]
+
+; write data
+	mov.w       r5, [r7+]
+
+	
+; Update step size
+
+		mov.b	12[r2], r5
+		mov.b	[r6, r9], r4
+		add		r4, r5
+;		mov.b	r5, r5
+		max		#2, r5
+		min		#87, r5
+		mov.b	r5, 12[r2]
+
+		sub		#1, r1
+		bnz		MAIN_LOOP
+
+LOOP_EXIT:
+		mov.l	#0, r1
+			
+NORMAL_EXIT:
+		rtsd	#20, r6-r10
+
+ERROR_EXIT:
+		mov.l	#-1, r1
+		bra		NORMAL_EXIT
+
+
+; Synopsis
+;		#include "r_adpcm.h"
+;		void
+;		R_adpcm_refreshDec(int16_t *inputAddr, uint8_t *outputAddr, adpcm_enc *wenv);
+; Description:
+;		The R_adpcm_refreshEnc() resets the pointer to input data and ADPCM cord data in a working area
+;		specified by wenv to inputAddr (pointer to input data) and outputAddr, respectively. 
+;		Other data are not modified.
+; Return Value
+;		None
+
+		.global    _R_adpcm_refreshDec
+_R_adpcm_refreshDec:
+		mov.l	r1, [r3]
+		mov.l	r2, 4[r3]
+		rts
+
+	.end
