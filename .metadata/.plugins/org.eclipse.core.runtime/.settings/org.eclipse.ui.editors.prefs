@@ -1,0 +1,17 @@
+eclipse.preferences.version=1
+indexResultIndication=false
+indexResultIndicationInOverviewRuler=false
+indexResultIndicationInVerticalRuler=false
+isErrorGoToNextNavigationTarget=false
+isSearchResultGoToNextNavigationTarget=true
+isWarningGoToNextNavigationTarget=false
+org.eclipse.cdt.codan.ui.annotation.error.GoToNextNavigationTarget=false
+org.eclipse.cdt.codan.ui.annotation.warning.GoToNextNavigationTarget=false
+org.eclipse.cdt.ui.isOccurrenceGoToNextNavigationTarget=true
+overviewRuler_migration=migrated_3.1
+printMargin=true
+printMarginColor=192,192,192
+quickdiff.defaultProvider=org.eclipse.egit.ui.internal.decorators.GitQuickDiffProvider
+spacesForTabs=true
+spellingEnabled=false
+tabWidth=2

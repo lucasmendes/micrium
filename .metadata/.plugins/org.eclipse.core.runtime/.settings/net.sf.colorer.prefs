@@ -1,0 +1,7 @@
+HRD_SET=hs
+PAIRS_MATCH=PAIRS_OUTLINE2
+PROJECTION=false
+SPACES_FOR_TABS=true
+eclipse.preferences.version=1
+parameters.bootini.@@HRD@@=false
+parameters.bootini.@@WORD_WRAP@@=false
